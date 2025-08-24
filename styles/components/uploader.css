@@ -1,0 +1,3 @@
+
+/* styles/components/uploader.css */
+.uploader [data-testid="stFileUploader"] { width: 100%; }

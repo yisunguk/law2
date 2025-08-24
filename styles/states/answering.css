@@ -1,0 +1,7 @@
+
+/* styles/states/answering.css */
+.app.answering .center-hero,
+.app.answering .chatbar,
+.app.answering .uploader {
+  display: none !important;
+}

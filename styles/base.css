@@ -1,0 +1,12 @@
+
+/* styles/base.css */
+:root{
+  --space-1: 6px;
+  --space-2: 12px;
+  --space-3: 16px;
+  --radius-xl: 12px;
+}
+
+.center-hero { max-width: 840px; margin: 0 auto; padding: var(--space-3); }
+.chatbar     { position: sticky; bottom: 0; padding: var(--space-2); z-index: 20; }
+.uploader    { margin-top: var(--space-2); }
