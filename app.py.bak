@@ -5,6 +5,8 @@ from pathlib import Path
 import traceback
 import streamlit as st
 
+from css_minimal_hook import css_start, css_end
+
 # ================= Project setup =================
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))  # local imports first
@@ -136,6 +138,7 @@ def main():
 
     # 2) Determine answering (single-run flag)
     ANSWERING = bool(user_q)
+css_start(ANSWERING)
 
     # 3) CSS modules (scoped to .app wrapper; no global side-effects)
     css_hook(ANSWERING)
@@ -169,6 +172,10 @@ def main():
 
     try: close_div()
     except Exception: pass
+try:
+    css_end()
+except Exception:
+    pass
 
 if __name__ == "__main__":
     main()
