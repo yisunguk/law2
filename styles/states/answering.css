@@ -1,7 +1,8 @@
 
-/* styles/states/answering.css */
-.app.answering .center-hero,
-.app.answering .chatbar,
-.app.answering .uploader {
+/* states/answering.css — hide inputs in MAIN AREA only while answering */
+.app.answering [data-testid="stAppViewContainer"] section main section[data-testid="stChatInput"],
+.app.answering [data-testid="stAppViewContainer"] section main [data-testid="stFileUploader"],
+.app.answering [data-testid="stAppViewContainer"] section main [data-testid="stFileUploaderDropzone"],
+.app.answering #chatbar-fixed {
   display: none !important;
 }
