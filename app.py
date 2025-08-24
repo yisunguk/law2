@@ -138,11 +138,9 @@ def main():
 
     # 2) Determine answering (single-run flag)
     ANSWERING = bool(user_q)
-css_start(ANSWERING)
-
+    css_start(ANSWERING)
     # 3) CSS modules (scoped to .app wrapper; no global side-effects)
-    css_hook(ANSWERING)
-
+    css_start(ANSWERING)
     # 4) Pre-chat (first screen)
     if (not st.session_state.get("chat_started", False)) and (not ANSWERING):
         # 중앙 히어로 (스코프 한정)
