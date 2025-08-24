@@ -1,5 +1,4 @@
-
-/* states/answering.css — hide inputs in MAIN AREA only while answering */
+/* Hide only main-area inputs/uploader while answering */
 .app.answering [data-testid="stAppViewContainer"] section main section[data-testid="stChatInput"],
 .app.answering [data-testid="stAppViewContainer"] section main [data-testid="stFileUploader"],
 .app.answering [data-testid="stAppViewContainer"] section main [data-testid="stFileUploaderDropzone"],

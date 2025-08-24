@@ -5,11 +5,17 @@ from pathlib import Path
 import traceback
 import streamlit as st
 
-from css_minimal_hook import css_start, css_end
+# ---- CSS hook (keeps UI, no JS) ----
+try:
+    from css_minimal_hook import css_start, css_end
+except Exception:
+    def css_start(*_a, **_k): pass
+    def css_end(*_a, **_k): pass
 
 # ================= Project setup =================
 ROOT = Path(__file__).resolve().parent
-sys.path.insert(0, str(ROOT))  # local imports first
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))  # local imports first
 
 # Optional user modules (graceful import so nothing breaks)
 try:
@@ -25,17 +31,16 @@ try:
 except Exception:
     legal_modes = None
 
-# ================= CSS module hook =================
+# ================= CSS module hook (fallback no-ops) =================
 try:
     from stylekit import load as load_css, open_div, close_div  # type: ignore
 except Exception:
-    # If stylekit.py is missing, make no-op shims so the app still works
     def load_css(_paths): pass
     def open_div(_cls: str): pass
     def close_div(): pass
 
 def css_hook(answering: bool) -> None:
-    """Load modular CSS and open a scoped wrapper. No JS, no monkeypatch."""
+    """(Unused) Legacy loader preserved for compatibility; kept as no-op-safe."""
     try:
         load_css([
             str(ROOT / "styles/base.css"),
@@ -46,7 +51,7 @@ def css_hook(answering: bool) -> None:
             load_css([str(ROOT / "styles/states/answering.css")])
         open_div(f'app {"answering" if answering else "idle"}')
     except Exception:
-        pass  # CSS가 실패해도 로직은 그대로 진행
+        pass  # CSS 실패해도 로직 진행
 
 # ================= State helpers ===================
 def _init_state():
@@ -62,7 +67,6 @@ def _push_user_from_pending() -> str:
     if not ss.get("_pending_user_q"):
         return ""
     text = (ss.get("_pending_text") or "").strip()
-    # clear immediately to avoid latching
     ss["_pending_user_q"] = False
     ss["_pending_text"] = ""
     if text:
@@ -138,43 +142,34 @@ def main():
 
     # 2) Determine answering (single-run flag)
     ANSWERING = bool(user_q)
-    css_start(ANSWERING)
+    css_start(ANSWERING)     # <-- .app ...(answering|idle) wrapper open
 
-    # 3) CSS modules (scoped to .app wrapper; no global side-effects)
-
-    # 4) Pre-chat (first screen)
+    # 3) Pre-chat (first screen)
     if (not st.session_state.get("chat_started", False)) and (not ANSWERING):
-        # 중앙 히어로 (스코프 한정)
-        from stylekit import open_div as _open, close_div as _close  # type: ignore
-        _open("center-hero")
+        open_div("center-hero")
         render_pre_chat_center()
-        _close()
-        try: close_div()
-        except Exception: pass
+        close_div()
         st.stop()
 
-    # 5) Messages
+    # 4) Messages
     render_messages()
 
-    # 6) Answer this turn
+    # 5) Answer this turn
     if ANSWERING:
         answer = generate_answer(user_q)
         st.session_state["messages"].append({"role": "assistant", "content": answer})
-        # (optional) integrated search
         render_search_results(user_q)
 
-    # 7) Bottom chatbar & uploader (only when not answering)
+    # 6) Bottom chatbar & uploader (only when not answering)
     if not ANSWERING:
-        from stylekit import open_div as _open, close_div as _close  # type: ignore
-        _open("chatbar");   render_bottom_chatbar();  _close()
-        _open("uploader");  render_bottom_uploader(); _close()
-
-    try: close_div()
-    except Exception: pass
-try:
-    css_end()
-except Exception:
-    pass
+        open_div("chatbar");   render_bottom_chatbar();  close_div()
+        open_div("uploader");  render_bottom_uploader(); close_div()
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    finally:
+        try:
+            css_end()          # <-- .app wrapper close (exactly once)
+        except Exception:
+            pass
